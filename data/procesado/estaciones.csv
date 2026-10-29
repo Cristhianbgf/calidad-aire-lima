@@ -1,0 +1,8 @@
+estacion,codigo,distrito,lat,lon,altitud_m,primer_registro,ultimo_registro
+Campo de Marte,CAMPO_DE_MARTE,Jesús María,-12.0705,-77.0432,117.0,2015-01-01 05:00:00,2024-05-31 23:00:00
+Carabayllo,CARABAYLLO,Carabayllo,-11.9022,-77.0336,179.0,2015-01-01 05:00:00,2024-05-31 23:00:00
+Santa Anita,SANTA_ANITA,Santa Anita,-12.043,-76.9714,253.0,2015-01-01 05:00:00,2024-05-31 23:00:00
+San Borja,SAN_BORJA,San Borja,-12.1086,-77.0077,128.0,2015-01-01 05:00:00,2024-05-31 23:00:00
+San Juan de Lurigancho,SAN_JUAN_DE_LURIGANCHO,San Juan de Lurigancho,-11.9816,-76.9992,240.0,2015-01-01 05:00:00,2024-05-31 23:00:00
+San Martín de Porres,SAN_MARTIN_DE_PORRES,San Martín de Porres,-12.0089,-77.0845,56.0,2015-01-01 05:00:00,2024-05-31 23:00:00
+Villa María del Triunfo,VILLA_MARIA_DEL_TRIUNFO,Villa María del Triunfo,-12.1664,-76.92,272.0,2015-01-01 05:00:00,2024-05-31 23:00:00

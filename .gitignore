@@ -1,0 +1,10 @@
+# El CSV crudo se descarga del portal oficial (ver README)
+data/crudo/
+# Archivos intermedios grandes; se rehacen con src/preparar_datos.py
+data/procesado/*.parquet
+# Revisiones locales
+salidas/verificacion/
+salidas/perfil/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/

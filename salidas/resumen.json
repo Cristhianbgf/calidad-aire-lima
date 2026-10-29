@@ -1,0 +1,52 @@
+{
+  "estaciones": 7,
+  "anios": [
+    2015,
+    2024
+  ],
+  "horas_estacion_con_datos": 464518,
+  "contaminantes": {
+    "PM10": {
+      "anios_estacion": 70,
+      "anios_estacion_reportables": 34,
+      "reportables_sobre_eca_anual": 20,
+      "reportables_sobre_oms_anual": 34,
+      "mayor_media_anual_reportable": {
+        "estacion": "Villa María del Triunfo",
+        "anio": 2017,
+        "valor": 131.6
+      },
+      "dias_sobre_oms_24h_total": 9650,
+      "dias_sobre_eca_24h_total": 1932,
+      "anios_estacion_sobre_lo_permitido_24h": 33
+    },
+    "PM25": {
+      "anios_estacion": 70,
+      "anios_estacion_reportables": 28,
+      "reportables_sobre_eca_anual": 13,
+      "reportables_sobre_oms_anual": 28,
+      "mayor_media_anual_reportable": {
+        "estacion": "San Juan de Lurigancho",
+        "anio": 2022,
+        "valor": 41.2
+      },
+      "dias_sobre_oms_24h_total": 11898,
+      "dias_sobre_eca_24h_total": 535,
+      "anios_estacion_sobre_lo_permitido_24h": 14
+    },
+    "NO2": {
+      "anios_estacion": 70,
+      "anios_estacion_reportables": 18,
+      "reportables_sobre_eca_anual": 0,
+      "reportables_sobre_oms_anual": 18,
+      "mayor_media_anual_reportable": {
+        "estacion": "Santa Anita",
+        "anio": 2022,
+        "valor": 28.4
+      },
+      "dias_sobre_oms_24h_total": 4313,
+      "horas_sobre_eca_1h_total": 1,
+      "anios_estacion_sobre_lo_permitido_1h": 0
+    }
+  }
+}

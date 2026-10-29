@@ -1,0 +1,28 @@
+{
+  "archivo_fuente": "senamhi_calidad_aire_lima.csv",
+  "filas_crudas": 577794,
+  "fechas_u_horas_imposibles": 0,
+  "negativos_anulados": {
+    "PM10": 0,
+    "PM25": 0,
+    "NO2": 0
+  },
+  "horas_estacion_en_conflicto_anuladas": 42,
+  "filas_en_conflicto_eliminadas": 108,
+  "periodo": [
+    "2015-01-01 00:00:00",
+    "2024-05-31 23:00:00"
+  ],
+  "estaciones": 7,
+  "filas_horarias": 577752,
+  "horas_validas_pct": {
+    "PM10": 65.9,
+    "PM25": 63.6,
+    "NO2": 51.8
+  },
+  "dias_validos_pct": {
+    "PM10": 65.0,
+    "PM25": 62.7,
+    "NO2": 50.5
+  }
+}
