@@ -14,7 +14,6 @@ PAGINA = RAIZ / "index.html"
 SITIO = "https://cristhianbgf.github.io/calidad-aire-lima/"
 REPO = "https://github.com/Cristhianbgf/calidad-aire-lima"
 PLOTLY_CDN = "https://cdn.plot.ly/plotly-2.35.2.min.js"  # la versión que trae plotly 5.24.1
-PLOTLY_ES = "https://cdn.plot.ly/plotly-locale-es-2.35.2.js"
 
 CONTAMINANTES = ["PM10", "PM25", "NO2"]
 ETIQUETA = {"PM10": "PM10", "PM25": "PM2.5", "NO2": "NO2"}
@@ -26,7 +25,7 @@ TEXTO, TEXTO_2, TENUE, GRILLA, EJE, BLANCO = "#222222", "#555555", "#888888", "#
 # Okabe-Ito (apta para daltonismo) más un vino para la séptima estación
 COLORES_ESTACION = ["#0072B2", "#E69F00", "#009E73", "#D55E00", "#CC79A7", "#56B4E9", "#882255"]
 AZULES_MAPA = ["#6baed6", "#4292c6", "#2171b5", "#08519c", "#08306b"]  # Blues de ColorBrewer sin los más claros
-CONFIG = {"displaylogo": False, "responsive": True, "locale": "es",
+CONFIG = {"displaylogo": False, "responsive": True,
           "modeBarButtonsToRemove": ["select2d", "lasso2d", "autoScale2d", "toggleSpikelines"]}
 
 
@@ -48,7 +47,7 @@ def lineas_limite(c, vertical=False):
     lineas = []
     if "24h" in ECA[c]:
         lineas.append((ECA[c]["24h"], f"ECA 24 h · {ECA[c]['24h']}", TEXTO, "dash"))
-    lineas.append((OMS[c]["24h"], f"OMS 24 h · {OMS[c]['24h']}", TENUE, "dot"))
+    lineas.append((OMS[c]["24h"], f"WHO 24 h · {OMS[c]['24h']}", TENUE, "dot"))
     nota = dict(showarrow=False, font=dict(size=11, color=TEXTO_2), bgcolor="rgba(255,255,255,0.85)")
     if vertical:
         formas = [dict(type="line", yref="paper", y0=0, y1=1, xref="x", x0=v, x1=v,
@@ -101,8 +100,8 @@ def main() -> None:
                         colorbar=dict(title=dict(text=UNIDAD, font=dict(color=TEXTO_2)), thickness=12,
                                       len=0.6, tickfont=dict(color=TEXTO_2))),
             customdata=list(zip(e.loc[orden, "distrito"], v.round(1), cobertura.loc[orden, c].round(0))),
-            hovertemplate="<b>%{text}</b> · %{customdata[0]}<br>" + f"Media de {ETIQUETA[c]} 2015-2024: " +
-                          "%{customdata[1]} " + UNIDAD + "<br>Días con datos válidos: %{customdata[2]} %<extra></extra>",
+            hovertemplate="<b>%{text}</b> · %{customdata[0]}<br>" + f"{ETIQUETA[c]} mean 2015-2024: " +
+                          "%{customdata[1]} " + UNIDAD + "<br>Days with valid data: %{customdata[2]} %<extra></extra>",
             visible=(i == 0), name=ETIQUETA[c]))
     fig.update_layout(**diseno(460), showlegend=False,
                       map=dict(style="carto-positron", zoom=9.7,
@@ -125,17 +124,17 @@ def main() -> None:
             customdata=cob.values, xgap=2, ygap=2, visible=(i == 0),
             colorbar=dict(title=dict(text=UNIDAD, font=dict(color=TEXTO_2)), thickness=12, tickfont=dict(color=TEXTO_2),
                           tickvals=[0, limite, 2 * limite], ticktext=["0", f"ECA {limite}", f"≥ {2 * limite}"]),
-            hovertemplate="<b>%{y}</b> · %{x}<br>Media anual: %{z:.1f} " + UNIDAD +
-                          f"<br>ECA anual: {limite} · OMS: {OMS[c]['anual']}" +
-                          "<br>Días con datos válidos: %{customdata} %<extra></extra>"))
+            hovertemplate="<b>%{y}</b> · %{x}<br>Annual mean: %{z:.1f} " + UNIDAD +
+                          f"<br>Annual ECA: {limite} · WHO: {OMS[c]['anual']}" +
+                          "<br>Days with valid data: %{customdata} %<extra></extra>"))
         fig.add_trace(go.Heatmap(
             z=debiles.notna().astype(float).where(debiles.notna()).values, x=anios, y=orden,
             colorscale=[[0, "#eeeeee"], [1, "#eeeeee"]], showscale=False, xgap=2, ygap=2,
             text=debiles.round(0).astype("Int64").astype(str).replace("<NA>", "").radd("(").add(")")
                         .replace("()", "").values,
             texttemplate="%{text}", textfont=dict(color=TENUE), customdata=cob.values, visible=(i == 0),
-            hovertemplate="<b>%{y}</b> · %{x}<br>Solo indicativa: %{customdata} % de días válidos"
-                          "<br>(una media anual necesita al menos 75 %)<extra></extra>"))
+            hovertemplate="<b>%{y}</b> · %{x}<br>Indicative only: %{customdata} % valid days"
+                          "<br>(an annual mean needs at least 75 %)<extra></extra>"))
     fig.update_layout(**diseno(360))
     fig.update_yaxes(autorange="reversed")
     fig.update_xaxes(dtick=1, side="top")
@@ -149,14 +148,14 @@ def main() -> None:
         pm = "24h" in ECA[c]
         z = tabla_estacion_anio(a, "dias_sobre_eca_24h" if pm else "horas_sobre_eca_1h", orden, anios)
         cob = tabla_estacion_anio(a, "cobertura_pct", orden, anios)
-        que = "Días sobre el ECA de 24 h" if pm else "Horas sobre el ECA de 1 h"
+        que = "Days above the 24 h ECA" if pm else "Hours above the 1 h ECA"
         fig.add_trace(go.Heatmap(
             z=z.values, x=anios, y=orden, colorscale="Oranges", zmin=0, xgap=2, ygap=2,
             text=z.values, texttemplate="%{text}", customdata=cob.values, visible=(i == 0),
-            colorbar=dict(title=dict(text="días" if pm else "horas", font=dict(color=TEXTO_2)),
+            colorbar=dict(title=dict(text="days" if pm else "hours", font=dict(color=TEXTO_2)),
                           thickness=12, tickfont=dict(color=TEXTO_2)),
-            hovertemplate="<b>%{y}</b> · %{x}<br>" + que + ": %{z}" + f" (permitidas: {7 if pm else 24} al año)" +
-                          "<br>Días con datos válidos: %{customdata} %<extra></extra>"))
+            hovertemplate="<b>%{y}</b> · %{x}<br>" + que + ": %{z}" + f" (allowed: {7 if pm else 24} per year)" +
+                          "<br>Days with valid data: %{customdata} %<extra></extra>"))
     fig.update_layout(**diseno(360))
     fig.update_yaxes(autorange="reversed")
     fig.update_xaxes(dtick=1, side="top")
@@ -171,12 +170,12 @@ def main() -> None:
         fig.add_trace(go.Scatter(
             x=d["fecha"], y=d[c].round(1), mode="lines", line=dict(width=1.5, color=color[est]),
             name=f"{est} · {ETIQUETA[c]}", visible=(est == orden[0] and c == CONTAMINANTES[0]), connectgaps=False,
-            hovertemplate="%{x|%d %b %Y}<br>Media diaria: %{y} " + UNIDAD + "<extra></extra>"))
+            hovertemplate="%{x|%d %b %Y}<br>Daily mean: %{y} " + UNIDAD + "<extra></extra>"))
     fig.update_layout(**diseno(420), showlegend=False, hovermode="x", **lineas_limite(CONTAMINANTES[0]))
     fig.update_xaxes(rangeslider=dict(visible=True, thickness=0.07, bgcolor="#f2f2f2"),
-                     rangeselector=dict(buttons=[dict(count=1, label="1 año", step="year", stepmode="backward"),
-                                                 dict(count=3, label="3 años", step="year", stepmode="backward"),
-                                                 dict(step="all", label="Todo")],
+                     rangeselector=dict(buttons=[dict(count=1, label="1 year", step="year", stepmode="backward"),
+                                                 dict(count=3, label="3 years", step="year", stepmode="backward"),
+                                                 dict(step="all", label="All")],
                                         bgcolor="#f2f2f2", activecolor="#dddddd", font=dict(color=TEXTO)))
     fig.update_yaxes(title=dict(text=UNIDAD, font=dict(color=TEXTO_2)), rangemode="tozero")
     figuras["serie"] = fig
@@ -193,7 +192,7 @@ def main() -> None:
             hoverinfo="x"))
     fig.update_layout(**diseno(400), showlegend=False, **lineas_limite(CONTAMINANTES[0], vertical=True))
     fig.update_yaxes(categoryorder="array", categoryarray=orden[::-1])
-    fig.update_xaxes(title=dict(text=f"Media diaria ({UNIDAD})", font=dict(color=TEXTO_2)), rangemode="tozero")
+    fig.update_xaxes(title=dict(text=f"Daily mean ({UNIDAD})", font=dict(color=TEXTO_2)), rangemode="tozero")
     figuras["cajas"] = fig
     visibles["cajas"] = {c: [q == c for q in CONTAMINANTES] for c in CONTAMINANTES}
     lineas["cajas"] = {c: lineas_limite(c, vertical=True) for c in CONTAMINANTES}
@@ -211,9 +210,9 @@ def main() -> None:
                 hovertemplate=est + ": %{y} " + UNIDAD + "<extra></extra>"))
     fig.update_layout(**diseno(420), hovermode="x unified",
                       legend=dict(orientation="h", y=-0.18, font=dict(color=TEXTO_2)))
-    fig.update_xaxes(title=dict(text="Hora del día (hora local, UTC-5)", font=dict(color=TEXTO_2)),
+    fig.update_xaxes(title=dict(text="Hour of day (local time, UTC-5)", font=dict(color=TEXTO_2)),
                      dtick=2, range=[-0.5, 23.5])
-    fig.update_yaxes(title=dict(text=f"Media ({UNIDAD})", font=dict(color=TEXTO_2)), rangemode="tozero")
+    fig.update_yaxes(title=dict(text=f"Mean ({UNIDAD})", font=dict(color=TEXTO_2)), rangemode="tozero")
     figuras["ciclo"] = fig
     visibles["ciclo"] = {c: [q == c for q in CONTAMINANTES for _ in orden] for c in CONTAMINANTES}
 
@@ -226,9 +225,9 @@ def main() -> None:
         fig.add_trace(go.Heatmap(
             z=z.values, x=anios, y=orden, colorscale="Blues", zmin=0, zmax=100, xgap=2, ygap=2,
             text=z.values, texttemplate="%{text}", visible=(i == 0),
-            colorbar=dict(title=dict(text="% horas", font=dict(color=TEXTO_2)), thickness=12,
+            colorbar=dict(title=dict(text="% hours", font=dict(color=TEXTO_2)), thickness=12,
                           tickfont=dict(color=TEXTO_2)),
-            hovertemplate="<b>%{y}</b> · %{x}<br>Horas con datos válidos: %{z} %<extra></extra>"))
+            hovertemplate="<b>%{y}</b> · %{x}<br>Hours with valid data: %{z} %<extra></extra>"))
     fig.update_layout(**diseno(340))
     fig.update_yaxes(autorange="reversed")
     fig.update_xaxes(dtick=1, side="top")
@@ -245,19 +244,19 @@ def main() -> None:
             f'<tr data-contaminante="{r.contaminante}"><td>{html.escape(r.estacion)}</td><td>{r.anio}</td>'
             f'<td class="num">{r.cobertura_pct:.0f}</td>'
             f'<td class="num">{"" if pd.isna(r.media_anual) else f"{r.media_anual:.1f}"}</td>'
-            f'<td>{"reportable" if r.media_reportable else "indicativa"}</td>'
+            f'<td>{"reportable" if r.media_reportable else "indicative"}</td>'
             f'<td class="num">{int(corto)}</td><td class="num">{int(r.dias_sobre_oms_24h)}</td></tr>')
 
     C = resumen["contaminantes"]
     horas = f"{resumen['horas_estacion_con_datos']:,}".replace(",", " ")
     tarjetas = [
-        ("Red", f"{resumen['estaciones']} estaciones", f"De enero de 2015 a mayo de 2024, con {horas} horas-estación con datos"),
-        ("PM10", f"{C['PM10']['reportables_sobre_eca_anual']} de {C['PM10']['anios_estacion_reportables']}",
-         f"años-estación con datos suficientes sobre el ECA anual ({ECA['PM10']['anual']} {UNIDAD})"),
-        ("PM2.5", f"{C['PM25']['reportables_sobre_eca_anual']} de {C['PM25']['anios_estacion_reportables']}",
-         f"años-estación con datos suficientes sobre el ECA anual ({ECA['PM25']['anual']} {UNIDAD})"),
-        ("NO2", f"{C['NO2']['reportables_sobre_eca_anual']} de {C['NO2']['anios_estacion_reportables']}",
-         f"sobre el ECA anual, aunque los {C['NO2']['reportables_sobre_oms_anual']} superan la guía de la OMS"),
+        ("Network", f"{resumen['estaciones']} stations", f"January 2015 to May 2024, with {horas} station-hours of data"),
+        ("PM10", f"{C['PM10']['reportables_sobre_eca_anual']} of {C['PM10']['anios_estacion_reportables']}",
+         f"station-years with enough data above the annual ECA ({ECA['PM10']['anual']} {UNIDAD})"),
+        ("PM2.5", f"{C['PM25']['reportables_sobre_eca_anual']} of {C['PM25']['anios_estacion_reportables']}",
+         f"station-years with enough data above the annual ECA ({ECA['PM25']['anual']} {UNIDAD})"),
+        ("NO2", f"{C['NO2']['reportables_sobre_eca_anual']} of {C['NO2']['anios_estacion_reportables']}",
+         f"above the annual ECA, although all {C['NO2']['reportables_sobre_oms_anual']} exceed the WHO guideline"),
     ]
     tarjetas_html = "".join(f'<div class="tarjeta"><div class="tarjeta-titulo">{k}</div><div class="tarjeta-valor">{v}</div>'
                             f'<div class="tarjeta-texto">{html.escape(d)}</div></div>' for k, v, d in tarjetas)
@@ -266,7 +265,7 @@ def main() -> None:
                           ensure_ascii=False)
 
     pagina = PLANTILLA.format(
-        plotly_cdn=PLOTLY_CDN, plotly_es=PLOTLY_ES, sitio=SITIO, repo=REPO, tarjetas=tarjetas_html,
+        plotly_cdn=PLOTLY_CDN, sitio=SITIO, repo=REPO, tarjetas=tarjetas_html,
         opciones=opciones, filas_tabla="".join(filas), datos_js=datos_js,
         **{f"fig_{k}": v for k, v in bloques.items()},
         n_conflicto=reporte["horas_estacion_en_conflicto_anuladas"],
@@ -279,20 +278,19 @@ def main() -> None:
 
 
 PLANTILLA = """<!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Calidad del aire en Lima, 2015-2024</title>
-<meta name="description" content="Dashboard de PM10, PM2.5 y NO2 de las siete estaciones automáticas del SENAMHI en Lima Metropolitana, comparados con el ECA para Aire y las guías de la OMS de 2021.">
+<title>Air quality in Lima, 2015-2024</title>
+<meta name="description" content="Dashboard of PM10, PM2.5 and NO2 from the seven SENAMHI automatic stations in Metropolitan Lima, compared with the Peruvian air quality standard (ECA) and the 2021 WHO guidelines.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Calidad del aire en Lima Metropolitana, 2015-2024">
-<meta property="og:description" content="PM10, PM2.5 y NO2 de las siete estaciones del SENAMHI frente al ECA para Aire y las guías de la OMS.">
+<meta property="og:title" content="Air quality in Metropolitan Lima, 2015-2024">
+<meta property="og:description" content="PM10, PM2.5 and NO2 from the seven SENAMHI stations against the Peruvian air quality standard (ECA) and the WHO guidelines.">
 <meta property="og:url" content="{sitio}">
 <meta property="og:image" content="{sitio}figuras/compartir.png">
 <meta name="twitter:card" content="summary_large_image">
 <script src="{plotly_cdn}" charset="utf-8"></script>
-<script src="{plotly_es}" charset="utf-8"></script>
 <style>
 :root {{
   color-scheme: light;
@@ -347,14 +345,14 @@ footer {{ border-top: 1px solid var(--borde); margin-top: 32px; padding-top: 16p
 </head>
 <body>
 <main>
-<h1>Calidad del aire en Lima Metropolitana, 2015-2024</h1>
-<p class="entrada">Concentraciones horarias de PM10, PM2.5 y NO2 de las siete estaciones automáticas del SENAMHI,
-comparadas con el Estándar de Calidad Ambiental para Aire (ECA, D.S. 003-2017-MINAM) y con las guías de calidad
-del aire de la OMS de 2021. El ECA es la referencia legal en el Perú, mientras que las guías de la OMS son una
-referencia de salud y no son vinculantes.</p>
+<h1>Air quality in Metropolitan Lima, 2015-2024</h1>
+<p class="entrada">Hourly PM10, PM2.5 and NO2 concentrations from the seven SENAMHI automatic stations,
+compared with Peru's Environmental Quality Standard for Air (ECA, D.S. 003-2017-MINAM) and with the 2021 WHO
+air quality guidelines. The ECA is the legal reference in Peru, while the WHO guidelines are a health reference
+and are not binding.</p>
 
-<div class="barra" role="toolbar" aria-label="Contaminante">
-  <span>Contaminante</span>
+<div class="barra" role="toolbar" aria-label="Pollutant">
+  <span>Pollutant</span>
   <div class="botones" id="contaminante">
     <button data-c="PM10" aria-pressed="true">PM10</button>
     <button data-c="PM25" aria-pressed="false">PM2.5</button>
@@ -365,94 +363,93 @@ referencia de salud y no son vinculantes.</p>
 <div class="tarjetas">{tarjetas}</div>
 
 <div class="panel">
-  <h2>¿Dónde es peor el aire? Media de <span class="etiqueta"></span> por estación</h2>
-  <p class="nota">Media de las medias diarias válidas de todo el registro. Los círculos más grandes y oscuros indican concentraciones más altas.</p>
+  <h2>Where is the air worst? Mean <span class="etiqueta"></span> by station</h2>
+  <p class="nota">Mean of all valid daily means in the record. Larger, darker circles mean higher concentrations.</p>
   {fig_mapa}
 </div>
 
 <div class="dos-columnas">
   <div class="panel">
-    <h2>Media anual frente al ECA</h2>
-    <p class="nota">El rojo indica que la media anual supera el ECA y el azul, que está por debajo. Los valores grises
-    entre paréntesis son indicativos, porque ese año tiene menos del 75 % de días con datos válidos.</p>
+    <h2>Annual mean against the ECA</h2>
+    <p class="nota">Red means the annual mean exceeds the ECA and blue that it is below. Grey values in
+    brackets are indicative, because that year has less than 75 % of days with valid data.</p>
     {fig_anual}
   </div>
   <div class="panel">
-    <h2 id="titulo-excedencias">Días sobre el ECA de 24 horas</h2>
-    <p class="nota" id="nota-excedencias">El ECA permite hasta 7 días al año por encima del límite. En los años con
-    datos faltantes, el conteo es un mínimo.</p>
+    <h2 id="titulo-excedencias">Days above the 24-hour ECA</h2>
+    <p class="nota" id="nota-excedencias">The ECA allows up to 7 days per year above the limit. In years with
+    missing data, the count is a minimum.</p>
     {fig_excedencias}
   </div>
 </div>
 
 <div class="panel">
-  <h2>Media diaria de <span class="etiqueta"></span>, día por día</h2>
-  <div class="control"><label for="estacion">Estación</label><select id="estacion">{opciones}</select></div>
+  <h2>Daily mean <span class="etiqueta"></span>, day by day</h2>
+  <div class="control"><label for="estacion">Station</label><select id="estacion">{opciones}</select></div>
   {fig_serie}
 </div>
 
 <div class="dos-columnas">
   <div class="panel">
-    <h2>¿Qué tan distintas son las estaciones?</h2>
-    <p class="nota">Distribución de las medias diarias de <span class="etiqueta"></span>. La caja abarca la mitad central
-    de los días y la línea interior es la mediana.</p>
+    <h2>How different are the stations?</h2>
+    <p class="nota">Distribution of daily mean <span class="etiqueta"></span>. The box covers the middle half
+    of the days and the inner line is the median.</p>
     {fig_cajas}
   </div>
   <div class="panel">
-    <h2>¿A qué hora del día es peor?</h2>
-    <p class="nota">Media de <span class="etiqueta"></span> para cada hora del día, con todos los años juntos.</p>
+    <h2>At what time of day is it worst?</h2>
+    <p class="nota">Mean <span class="etiqueta"></span> for each hour of the day, all years together.</p>
     {fig_ciclo}
   </div>
 </div>
 
 <div class="panel">
-  <h2>¿Qué tan completo es el registro?</h2>
-  <p class="nota">Porcentaje de horas con un valor válido de <span class="etiqueta"></span>, por estación y año (2024 cubre de enero a mayo).</p>
+  <h2>How complete is the record?</h2>
+  <p class="nota">Percentage of hours with a valid <span class="etiqueta"></span> value, by station and year (2024 covers January to May).</p>
   {fig_completitud}
 </div>
 
 <details>
-  <summary>Tabla del resumen anual por estación y año (<span class="etiqueta"></span>)</summary>
+  <summary>Annual summary table by station and year (<span class="etiqueta"></span>)</summary>
   <div class="tabla"><table>
-    <thead><tr><th>Estación</th><th>Año</th><th>Días válidos (%)</th><th>Media anual (µg/m³)</th><th>Media anual</th>
-    <th>Sobre el ECA de corto plazo*</th><th>Días sobre la OMS 24 h</th></tr></thead>
+    <thead><tr><th>Station</th><th>Year</th><th>Valid days (%)</th><th>Annual mean (µg/m³)</th><th>Annual mean</th>
+    <th>Above the short-term ECA*</th><th>Days above WHO 24 h</th></tr></thead>
     <tbody>{filas_tabla}</tbody>
   </table></div>
-  <p class="metodo">* Días sobre el ECA de 24 horas para PM10 y PM2.5, y horas sobre el ECA de 1 hora para NO2.
-  Se pueden descargar las <a href="data/procesado/diario.csv">medias diarias (CSV)</a> y el
-  <a href="salidas/resumen_anual.csv">resumen anual (CSV)</a>.</p>
+  <p class="metodo">* Days above the 24-hour ECA for PM10 and PM2.5, and hours above the 1-hour ECA for NO2.
+  You can download the <a href="data/procesado/diario.csv">daily means (CSV)</a> and the
+  <a href="salidas/resumen_anual.csv">annual summary (CSV)</a>.</p>
 </details>
 
 <section class="metodo">
-  <h2>Datos y método</h2>
-  <p>Los datos provienen del conjunto <i>Monitoreo de los contaminantes del aire en Lima Metropolitana</i> del Servicio
-  Nacional de Meteorología e Hidrología del Perú (SENAMHI), publicado en la
+  <h2>Data and method</h2>
+  <p>The data come from the dataset <i>Monitoreo de los contaminantes del aire en Lima Metropolitana</i> of Peru's
+  National Meteorology and Hydrology Service (SENAMHI), published on the
   <a href="https://www.datosabiertos.gob.pe/dataset/monitoreo-de-los-contaminantes-del-aire-en-lima-metropolitana-servicio-nacional-de">Plataforma Nacional de Datos Abiertos</a>
-  con licencia Open Data Commons Attribution. Son datos horarios validados, con corte al 31 de mayo de 2024.</p>
-  <p>El diccionario de datos no indica las unidades. Las medias diarias calculadas aquí reproducen los máximos diarios
-  de PM10 del boletín del SENAMHI de febrero de 2018 para Lima, que están en µg/m³, por lo que todos los valores se
-  leen en esa unidad.</p>
-  <p>No se encontraron fechas imposibles ni valores negativos. Hubo {n_conflicto} horas-estación del 1 de mayo de 2024
-  repetidas con valores distintos, y se dejaron como faltantes.</p>
-  <p>Una media diaria exige al menos 18 horas válidas (75 %). Una media anual solo se reporta cuando al menos el 75 %
-  de los días del año son válidos; en otro caso se muestra como indicativa.</p>
-  <p>El ECA fija para el PM10 100 µg/m³ en 24 horas, con hasta 7 excedencias al año, y 50 µg/m³ como media anual.
-  Para el PM2.5 fija 50 µg/m³ en 24 horas, también con hasta 7 excedencias al año, y 25 µg/m³ como media anual.
-  Para el NO2 fija 200 µg/m³ en 1 hora, con hasta 24 excedencias al año, y 100 µg/m³ como media anual. Las guías
-  de la OMS de 2021 son 45 y 15 µg/m³ para el PM10, 15 y 5 µg/m³ para el PM2.5, y 25 y 10 µg/m³ para el NO2, en
-  24 horas y como media anual.</p>
-  <p>Son estaciones de vigilancia del aire ambiente, así que la comparación describe el aire que se respira en cada
-  distrito y no evalúa el cumplimiento de ninguna fuente en particular. En el registro, {pm10_sobre} años-estación
-  superaron el ECA de 24 horas de PM10 más de los 7 días que permite y {pm25_sobre} lo hicieron con el PM2.5,
-  mientras que el ECA de 1 hora de NO2 se superó en {no2_horas} hora en total.</p>
-  <p>El NO2 es el contaminante con más vacíos y, en los años incompletos, los conteos de excedencias son mínimos.
-  El conjunto de datos no incluye meteorología, así que no se analiza el efecto del viento.</p>
+  (Peru's open data platform) under the Open Data Commons Attribution licence. They are validated hourly data up to 31 May 2024.</p>
+  <p>The data dictionary does not state the units. The daily means computed here reproduce the daily PM10 maxima
+  of SENAMHI's February 2018 bulletin for Lima, which are in µg/m³, so all values are read in that unit.</p>
+  <p>No impossible dates or negative values were found. There were {n_conflicto} station-hours on 1 May 2024
+  duplicated with different values, and they were set as missing.</p>
+  <p>A daily mean requires at least 18 valid hours (75 %). An annual mean is only reported when at least 75 %
+  of the days of the year are valid; otherwise it is shown as indicative.</p>
+  <p>The ECA sets 100 µg/m³ over 24 hours for PM10, with up to 7 exceedances per year, and 50 µg/m³ as the annual
+  mean. For PM2.5 it sets 50 µg/m³ over 24 hours, also with up to 7 exceedances per year, and 25 µg/m³ as the annual
+  mean. For NO2 it sets 200 µg/m³ over 1 hour, with up to 24 exceedances per year, and 100 µg/m³ as the annual mean.
+  The 2021 WHO guidelines are 45 and 15 µg/m³ for PM10, 15 and 5 µg/m³ for PM2.5, and 25 and 10 µg/m³ for NO2,
+  over 24 hours and as the annual mean.</p>
+  <p>These are ambient air monitoring stations, so the comparison describes the air breathed in each district and
+  does not assess the compliance of any particular source. In the record, {pm10_sobre} station-years exceeded the
+  24-hour PM10 ECA on more than the 7 days it allows and {pm25_sobre} did so for PM2.5, while the 1-hour NO2 ECA
+  was exceeded in {no2_horas} hour in total.</p>
+  <p>NO2 is the pollutant with the most gaps, and in incomplete years exceedance counts are minimums.
+  The dataset does not include meteorology, so the effect of wind is not analysed.</p>
 </section>
 
 <footer>
-  Elaborado por Cristhian B. Gamarra Fuentes con Python, pandas y Plotly ·
-  <a href="{repo}">código y datos en GitHub</a> ·
-  contiene datos del SENAMHI (licencia Open Data Commons Attribution).
+  Made by Cristhian B. Gamarra Fuentes with Python, pandas and Plotly ·
+  <a href="{repo}">code and data on GitHub</a> ·
+  contains SENAMHI data (Open Data Commons Attribution licence).
 </footer>
 </main>
 
@@ -472,10 +469,10 @@ function elegirContaminante(c, inicial = false) {{
   }}
   Plotly.relayout("fig-cajas", DATOS.lineas.cajas[c]);
   const pm = "24h" in DATOS.eca[c];
-  document.getElementById("titulo-excedencias").textContent = pm ? "Días sobre el ECA de 24 horas" : "Horas sobre el ECA de 1 hora";
+  document.getElementById("titulo-excedencias").textContent = pm ? "Days above the 24-hour ECA" : "Hours above the 1-hour ECA";
   document.getElementById("nota-excedencias").textContent = pm
-    ? "El ECA permite hasta 7 días al año por encima del límite. En los años con datos faltantes, el conteo es un mínimo."
-    : "El ECA permite hasta 24 horas al año por encima de 200 µg/m³. En los años con datos faltantes, el conteo es un mínimo.";
+    ? "The ECA allows up to 7 days per year above the limit. In years with missing data, the count is a minimum."
+    : "The ECA allows up to 24 hours per year above 200 µg/m³. In years with missing data, the count is a minimum.";
   document.querySelectorAll("tbody tr").forEach(tr => tr.hidden = tr.dataset.contaminante !== c);
   elegirEstacion(document.getElementById("estacion").value);
 }}
