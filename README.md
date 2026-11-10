@@ -1,54 +1,54 @@
-# Calidad del aire en Lima Metropolitana, 2015-2024
+# Air quality in Metropolitan Lima, 2015-2024
 
-Dashboard interactivo con las concentraciones horarias de PM10, PM2.5 y NO2 de las siete estaciones automáticas del SENAMHI en Lima Metropolitana, comparadas con el Estándar de Calidad Ambiental para Aire (ECA, D.S. 003-2017-MINAM) y con las guías de calidad del aire de la OMS de 2021.
+Interactive dashboard of hourly PM10, PM2.5 and NO2 concentrations from the seven SENAMHI automatic stations in Metropolitan Lima, compared with Peru's Environmental Quality Standard for Air (ECA, D.S. 003-2017-MINAM) and with the 2021 WHO air quality guidelines.
 
-El dashboard está publicado en https://cristhianbgf.github.io/calidad-aire-lima/
+The dashboard is published at https://cristhianbgf.github.io/calidad-aire-lima/
 
-![Vista previa del dashboard](figuras/vista_previa.png)
+![Dashboard preview](figuras/vista_previa.png)
 
-## Resultados
+## Results
 
-Las cifras salen de [`salidas/resumen.json`](salidas/resumen.json). Un año-estación tiene datos suficientes cuando al menos el 75 % de sus días son válidos.
+Figures come from [`salidas/resumen.json`](salidas/resumen.json). A station-year has enough data when at least 75 % of its days are valid.
 
-| Contaminante | Media anual sobre el ECA | Media anual sobre la guía de la OMS | ECA de corto plazo |
+| Pollutant | Annual mean above the ECA | Annual mean above the WHO guideline | Short-term ECA |
 |---|---|---|---|
-| PM10 | 20 de 34 años-estación (ECA de 50 µg/m³) | 34 de 34 (guía de 15 µg/m³) | 33 años-estación pasaron los 7 días al año permitidos sobre 100 µg/m³ |
-| PM2.5 | 13 de 28 (25 µg/m³) | 28 de 28 (5 µg/m³) | 14 años-estación pasaron los 7 días permitidos sobre 50 µg/m³ |
-| NO2 | 0 de 18 (100 µg/m³) | 18 de 18 (10 µg/m³) | 1 hora sobre 200 µg/m³ en todo el registro, con 24 al año permitidas |
+| PM10 | 20 of 34 station-years (ECA of 50 µg/m³) | 34 of 34 (guideline of 15 µg/m³) | 33 station-years exceeded the 7 days per year allowed above 100 µg/m³ |
+| PM2.5 | 13 of 28 (25 µg/m³) | 28 of 28 (5 µg/m³) | 14 station-years exceeded the 7 days allowed above 50 µg/m³ |
+| NO2 | 0 of 18 (100 µg/m³) | 18 of 18 (10 µg/m³) | 1 hour above 200 µg/m³ in the whole record, with 24 per year allowed |
 
-Las medias anuales reportables más altas fueron la del PM10 en Villa María del Triunfo en 2017 (131.6 µg/m³), la del PM2.5 en San Juan de Lurigancho en 2022 (41.2 µg/m³) y la del NO2 en Santa Anita en 2022 (28.4 µg/m³).
+The highest reportable annual means were PM10 in Villa María del Triunfo in 2017 (131.6 µg/m³), PM2.5 in San Juan de Lurigancho in 2022 (41.2 µg/m³) and NO2 in Santa Anita in 2022 (28.4 µg/m³).
 
-Son estaciones de vigilancia del aire ambiente, así que la comparación describe el aire que se respira en cada distrito y no el cumplimiento de una fuente en particular. El ECA es la referencia legal en el Perú, mientras que las guías de la OMS son una referencia de salud y no son vinculantes.
+These are ambient air monitoring stations, so the comparison describes the air breathed in each district and does not assess the compliance of any particular source. The ECA is the legal reference in Peru, while the WHO guidelines are a health reference and are not binding.
 
-## Datos
+## Data
 
-Los datos son del conjunto *Monitoreo de los contaminantes del aire en Lima Metropolitana* del SENAMHI, publicado en la [Plataforma Nacional de Datos Abiertos](https://www.datosabiertos.gob.pe/dataset/monitoreo-de-los-contaminantes-del-aire-en-lima-metropolitana-servicio-nacional-de) con licencia Open Data Commons Attribution. Son datos horarios validados del 1 de enero de 2015 al 31 de mayo de 2024. El repositorio incluye datos derivados de ese conjunto, que son las medias diarias y los resúmenes anuales.
+The data come from the dataset *Monitoreo de los contaminantes del aire en Lima Metropolitana* of SENAMHI (Peru's National Meteorology and Hydrology Service), published on Peru's [National Open Data Platform](https://www.datosabiertos.gob.pe/dataset/monitoreo-de-los-contaminantes-del-aire-en-lima-metropolitana-servicio-nacional-de) under the Open Data Commons Attribution licence. They are validated hourly data from 1 January 2015 to 31 May 2024. The repository includes data derived from that dataset: daily means and annual summaries.
 
-El CSV original no está en el repositorio. Para reproducir el análisis hay que descargarlo de la página del conjunto y guardarlo como `data/crudo/senamhi_calidad_aire_lima.csv`. La versión que se usó pesa 68 501 558 bytes y su SHA-256 es `896ae8a106fb128460e81b3f58096f6b9c4d582ef28fffa46e5394c5875c40d4`.
+The original CSV is not in the repository. To reproduce the analysis, download it from the dataset page and save it as `data/crudo/senamhi_calidad_aire_lima.csv`. The version used is 68 501 558 bytes and its SHA-256 is `896ae8a106fb128460e81b3f58096f6b9c4d582ef28fffa46e5394c5875c40d4`.
 
-## Método
+## Method
 
-[`src/preparar_datos.py`](src/preparar_datos.py) lee los valores con `pd.to_numeric(errors="coerce")` y pone cada estación sobre una grilla horaria completa, para que las horas sin registro cuenten como faltantes. No hubo fechas imposibles ni valores negativos. Hubo 42 horas-estación del 1 de mayo de 2024 repetidas con valores distintos, y se eliminaron todas sus copias.
+[`src/preparar_datos.py`](src/preparar_datos.py) reads values with `pd.to_numeric(errors="coerce")` and puts each station on a complete hourly grid, so hours without a record count as missing. There were no impossible dates or negative values. There were 42 station-hours on 1 May 2024 duplicated with different values, and all their copies were removed.
 
-Una media diaria exige al menos 18 horas válidas (75 %). Una media anual solo se reporta cuando al menos el 75 % de los días del año son válidos y, en otro caso, se muestra como indicativa. Las medias se comparan con los estándares antes de redondearlas.
+A daily mean requires at least 18 valid hours (75 %). An annual mean is only reported when at least 75 % of the days of the year are valid; otherwise it is shown as indicative. Means are compared with the standards before rounding.
 
-[`src/cumplimiento.py`](src/cumplimiento.py) compara cada estación y año con el ECA publicado en El Peruano el 7 de junio de 2017 y con las guías de la OMS de 2021. El ECA fija para el PM10 100 µg/m³ en 24 horas, con hasta 7 excedencias al año, y 50 µg/m³ como media anual. Para el PM2.5 fija 50 µg/m³ en 24 horas, también con hasta 7 excedencias al año, y 25 µg/m³ como media anual. Para el NO2 fija 200 µg/m³ en 1 hora, con hasta 24 excedencias al año, y 100 µg/m³ como media anual. Las guías de la OMS son 45 y 15 µg/m³ para el PM10, 15 y 5 µg/m³ para el PM2.5, y 25 y 10 µg/m³ para el NO2, en 24 horas y como media anual.
+[`src/cumplimiento.py`](src/cumplimiento.py) compares each station and year with the ECA published in El Peruano on 7 June 2017 and with the 2021 WHO guidelines. The ECA sets 100 µg/m³ over 24 hours for PM10, with up to 7 exceedances per year, and 50 µg/m³ as the annual mean. For PM2.5 it sets 50 µg/m³ over 24 hours, also with up to 7 exceedances per year, and 25 µg/m³ as the annual mean. For NO2 it sets 200 µg/m³ over 1 hour, with up to 24 exceedances per year, and 100 µg/m³ as the annual mean. The WHO guidelines are 45 and 15 µg/m³ for PM10, 15 and 5 µg/m³ for PM2.5, and 25 and 10 µg/m³ for NO2, over 24 hours and as the annual mean.
 
-[`src/construir_dashboard.py`](src/construir_dashboard.py) arma la página con Plotly. La página es estática y un script corto cambia el contaminante y la estación en el navegador.
+[`src/construir_dashboard.py`](src/construir_dashboard.py) builds the page with Plotly. The page is static, and a short script switches pollutant and station in the browser.
 
-## Verificación de unidades
+## Unit check
 
-El diccionario de datos no indica las unidades. Para confirmarlas, [`src/verificar_boletin.py`](src/verificar_boletin.py) compara las medias diarias con los máximos de PM10 del boletín del SENAMHI de febrero de 2018 para Lima.
+The data dictionary does not state the units. To confirm them, [`src/verificar_boletin.py`](src/verificar_boletin.py) compares the daily means with the PM10 maxima in SENAMHI's February 2018 bulletin for Lima.
 
-| Estación | Boletín | Este repositorio |
+| Station | Bulletin | This repository |
 |---|---|---|
-| Carabayllo | 89.5 µg/m³ el día 24 | 97.3 µg/m³ el día 24 |
-| San Martín de Porres | 95.4 µg/m³ el día 13 | 93.1 µg/m³ el día 13 |
-| San Juan de Lurigancho | 106.1 µg/m³ el día 24, con 2 días sobre 100 | 105.9 µg/m³ el día 24, con 2 días sobre 100 |
+| Carabayllo | 89.5 µg/m³ on day 24 | 97.3 µg/m³ on day 24 |
+| San Martín de Porres | 95.4 µg/m³ on day 13 | 93.1 µg/m³ on day 13 |
+| San Juan de Lurigancho | 106.1 µg/m³ on day 24, with 2 days above 100 | 105.9 µg/m³ on day 24, with 2 days above 100 |
 
-Los días coinciden y los valores difieren en menos de 8 µg/m³, así que todos los valores se leen en µg/m³. El conjunto abierto es la serie validada, por lo que no tiene por qué coincidir con el boletín al decimal.
+The days match and the values differ by less than 8 µg/m³, so all values are read in µg/m³. The open dataset is the validated series, so it need not match the bulletin to the decimal.
 
-## Cómo reproducirlo
+## How to reproduce
 
 ```bash
 pip install -r requirements.txt
@@ -58,10 +58,10 @@ python src/verificar_boletin.py
 python src/construir_dashboard.py
 ```
 
-## Limitaciones
+## Limitations
 
-El NO2 es el contaminante con más vacíos, con 52 % de horas válidas, y en los años incompletos los conteos de excedencias son mínimos. El año 2024 cubre solo de enero a mayo, así que ninguna media anual de 2024 es reportable. El conjunto de datos no incluye meteorología, por lo que no se analiza el efecto del viento en cada estación.
+NO2 is the pollutant with the most gaps, with 52 % valid hours, and in incomplete years exceedance counts are minimums. 2024 only covers January to May, so no 2024 annual mean is reportable. The dataset does not include meteorology, so the effect of wind at each station is not analysed.
 
-## Licencia
+## Licence
 
-El código está bajo la licencia MIT, que está en [LICENSE](LICENSE). Los datos derivados del SENAMHI conservan la licencia Open Data Commons Attribution.
+The code is under the MIT licence, in [LICENSE](LICENSE). Data derived from SENAMHI keep the Open Data Commons Attribution licence.
