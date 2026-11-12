@@ -14,6 +14,7 @@ PAGINA = RAIZ / "index.html"
 SITIO = "https://cristhianbgf.github.io/calidad-aire-lima/"
 REPO = "https://github.com/Cristhianbgf/calidad-aire-lima"
 PLOTLY_CDN = "https://cdn.plot.ly/plotly-2.35.2.min.js"  # la versión que trae plotly 5.24.1
+PLOTLY_SRI = "sha384-cCVCZkAjYNxaYKbM8lsArLznDF/SvMFr1jcZrvOpSTCa0W40ZAdLzHCEulnUa5i7"  # hash de integridad (SRI) de ese mismo archivo
 
 CONTAMINANTES = ["PM10", "PM25", "NO2"]
 ETIQUETA = {"PM10": "PM10", "PM25": "PM2.5", "NO2": "NO2"}
@@ -265,7 +266,7 @@ def main() -> None:
                           ensure_ascii=False)
 
     pagina = PLANTILLA.format(
-        plotly_cdn=PLOTLY_CDN, sitio=SITIO, repo=REPO, tarjetas=tarjetas_html,
+        plotly_cdn=PLOTLY_CDN, plotly_sri=PLOTLY_SRI, sitio=SITIO, repo=REPO, tarjetas=tarjetas_html,
         opciones=opciones, filas_tabla="".join(filas), datos_js=datos_js,
         **{f"fig_{k}": v for k, v in bloques.items()},
         n_conflicto=reporte["horas_estacion_en_conflicto_anuladas"],
@@ -290,7 +291,7 @@ PLANTILLA = """<!doctype html>
 <meta property="og:url" content="{sitio}">
 <meta property="og:image" content="{sitio}figuras/compartir.png">
 <meta name="twitter:card" content="summary_large_image">
-<script src="{plotly_cdn}" charset="utf-8"></script>
+<script src="{plotly_cdn}" integrity="{plotly_sri}" crossorigin="anonymous" charset="utf-8"></script>
 <style>
 :root {{
   color-scheme: light;
